@@ -7,6 +7,7 @@
 
 #define BITS 32
 #define BASE 2
+#define WORDSIZE 4294967296LLU
 
 /* You are suppose to change the routine Product32 here to your own routine 
  * The mpz calls in the scaffolded Product32 below are the normal GMP function
@@ -37,8 +38,8 @@ void a18(unsigned int *int_a, unsigned int *int_b, unsigned int *int_c,
     carry = 0;
     for (j=0;j<wb;j++) {
       p = (unsigned long long)int_a[i]*int_b[j]+int_c[i+j]+carry;
-      int_c[i+j]=p%base;
-      carry=p/base;
+      int_c[i+j]=p%WORDSIZE;
+      carry=p>>32;
     }
     int_c[i+wb]=carry;
   }
