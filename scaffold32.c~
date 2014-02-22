@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <gmp.h>
+#include <time.h>
+#include "scaffold32.h"
+
+#define BITS 32
+#define BASE 2
+
+/* You are suppose to change the routine Product32 here to your own routine 
+ * The mpz calls in the scaffolded Product32 below are the normal GMP function
+ * calls and should be neglected. By casting the void pointers as normal unsigned
+ * integers, you should be able to access the data values as normal 4 bytes words.
+ */
+
+/* based on the size of the two integers, determine which algorithm to use */
+int decide (unsigned int wa, unsigned int wb, void *a, void *b) {
+  if (wa == 0 || wb == 0)
+    return 0;
+  else
+    return 1;
+}
+
+/* wa is word length of a, ba is bit length of a */
+void Product32(void *a, void *b, void *c, unsigned int wa,
+               unsigned int ba, unsigned int wb, unsigned int bb, unsigned int
+               *wc, unsigned int *bc){
+  
+  /* Cast a and b into short integers of size 32 bits */
+  unsigned int *int_a = (unsigned int *) a;
+  unsigned int *int_b = (unsigned int *) b;
+  unsigned int *int_c = (unsigned int *) c;
+  
+  /* Now int_a can be view as an array of words of size 32
+   * bits */
+  /* Similarly for int_b */
+  
+  memset(int_c,0,(wa+wb)*sizeof(unsigned int));
+
+  switch (decide(wa, wb, a, b)) {
+    case 0:
+      *wc = 0;
+      break;
+    case 1:
+      a18(int_a, int_b, int_c, wa, wb, wc);
+      break;
+  }
+}
+
+void a18(unsigned int *int_a, unsigned int *int_b, unsigned int *int_c,
+         unsigned int wa, unsigned int wb, unsigned int *wc){
+  
+  int i, j;
+  unsigned int carry = 0;
+  unsigned long long p, base = (unsigned long long)pow(BASE, BITS);
+  
+  // initialize
+  for (i=0;i<(*wc = wa + wb);i++)
+    int_c[i] = 0;
+  
+  for (i=0;i<wa;i++) {
+    carry = 0;
+    for (j=0;j<wb;j++) {
+      p = (unsigned long long)int_a[i]*int_b[j]+int_c[i+j]+carry;
+      int_c[i+j]=p%base;
+      carry=p/base;
+    }
+    int_c[i+wb]=carry;
+  }
+}
+
